@@ -32,6 +32,8 @@ To build the project you will need:
 
 All the parts required to build the chassis can be 3D printed and files can be found on [Open Robotic Platform website](https://openroboticplatform.com/). You can also DIY it or use any other chassis.
 
+## Arduino code
+Arduino programs were divided into 4 folders. There are two different versions of the code for data collection and classification and I used two different LIDARs so there is each version for both LIDARs. Delta 2A LIDAR is not available anymore so might be hard to buy. RPLidar is very popular and can be still bought in most robotics stores. 
 
 ## How to support my work
 Makign all this projects, documentation and videos takes a lot of time and money. If you would like to support what I am doing you can do it on [Patreon](https://www.patreon.com/nikodembartnik) or through my [Indystry store](https://indystry.cc/store/). Even simply watching my videos helps a lot so subscribe to [my channel](https://www.youtube.com/@nikodembartnik) to don't miss any of them.
