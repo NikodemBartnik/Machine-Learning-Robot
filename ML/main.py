@@ -1,80 +1,45 @@
-import pygame, math, serial, numpy
-pygame.init()
-
-#constant based on lidar resolution
-LIDAR_RESOLUTION = 240
-#lidar resolution divided by 4 to simplify the visualization
-VISUALIZATION_RESOLUTION = 240
-
-distances_list = []
-first_run = True
-
-def GetDataFromArduino():
-    global distances_list, first_run
-    #[:-3] get rid of end of line sign and additional comma separator that is sent from arduino
-    data = arduino.readline()[:-3].decode("utf-8") 
-    d_list= data.split(",")
-    if len(d_list) == LIDAR_RESOLUTION*2:
-        if first_run:
-            distances_list = d_list
-            first_run = False
-        else:
-            distances_list = filterDistancesList(d_list)
-    return distances_list
-
-def filterDistancesList(d_list):
-    filtered_list =[]
-    for i in range(int(len(d_list)/2)):
-        if int(d_list[i*2+1]) < 50:
-            filtered_list.append(distances_list[i*2])
-        elif int(d_list[i*2]) > 7500:
-            filtered_list.append(distances_list[i*2])
-        else:
-            filtered_list.append(d_list[i*2])
-    return filtered_list
+import numpy as np
+import pandas as pd
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_classif
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from micromlgen import port
 
 
-def GenerateLinePositions(numberOfLines):
-    angle = 360/numberOfLines
-    lines = []
-    for x in range(numberOfLines):
-        lines.append([300 * math.cos((x+1)*angle/180 * math.pi), 300 * math.sin((x+1)*angle/180 * math.pi)])
-    return lines
+data = pd.read_csv('I:/ml_racing_robots/data/all.txt', header=None)
+data.rename(columns={data.columns[-1]: 'Label'}, inplace=True)
+data = data[(data['Label'] != 'L') & (data['Label'] != 'R') & (data['Label'] != 'H') & (data['Label'] != 'J')]
+data.reset_index(drop=True, inplace=True)
+X = data.iloc[:, :-1]
+y = data.iloc[:, -1]
+
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(y)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+k = 80
+k_best = SelectKBest(score_func=f_classif, k=k)
+k_best.fit(X_train, y_train)
+
+selected_feature_indices = k_best.get_support(indices=True)
+print("selected_feature_indices: ", selected_feature_indices)
 
 
+clf = RandomForestClassifier(max_depth=3, random_state=42)
+clf.fit(X_train.iloc[:, selected_feature_indices], y_train)
 
+y_pred = clf.predict(X_test.iloc[:, selected_feature_indices])
 
-arduino = serial.Serial('COM4', 230400, timeout=.1)
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy}')
 
-line_positions = GenerateLinePositions(VISUALIZATION_RESOLUTION)
+class_names = label_encoder.classes_
+report = classification_report(y_test, y_pred, target_names=class_names, zero_division=0)
+print('Classification Report:\n', report)
 
-# Set up the drawing window
-screen = pygame.display.set_mode([800, 800])
-sysfont = pygame.font.get_default_font()
-font1 = pygame.font.SysFont(sysfont, 72)
-
-while True:
-    distances = GetDataFromArduino()
-    print(len(distances))
-    if(len(distances) == LIDAR_RESOLUTION):
-        # Did the user click the window close button?
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            
-    
-        # Fill the background with white
-        screen.fill((250, 250, 250))
-
-    
-        for x in range(VISUALIZATION_RESOLUTION):
-            a = int(distances[x])/4000
-            pygame.draw.circle(screen, (50, 50, 150), (line_positions[x][0]*a+400, line_positions[x][1]*a+400), 3)
-            
-            
-        #pygame.draw.circle(screen, (120, 40, 40), (400, 400), 60)
-        # Flip the display
-        pygame.display.flip()
-
-arduino.close()
-pygame.quit()
+# arduino_code = open("arduino_random_forest10.c", mode="w+")
+# arduino_code.write(port(clf))
