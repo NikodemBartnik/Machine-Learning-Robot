@@ -69,7 +69,7 @@ void loop() {
     }
   float selectedData[15] = {distances[lidarDataSelection[0]], distances[lidarDataSelection[1]], distances[lidarDataSelection[2]], distances[lidarDataSelection[3]], distances[lidarDataSelection[4]], distances[lidarDataSelection[5]], distances[lidarDataSelection[6]], distances[lidarDataSelection[7]], distances[lidarDataSelection[8]], distances[lidarDataSelection[9]], distances[lidarDataSelection[10]], distances[lidarDataSelection[11]], distances[lidarDataSelection[12]], distances[lidarDataSelection[13]], distances[lidarDataSelection[14]]};
   int ctrl = clf.predict(selectedData);
-  Serial.println(ctrl);
+  //Serial.println(distances[0]);
   drive(ctrl);
 }
 
@@ -103,13 +103,13 @@ if(motor == 1){
 
 void drive(int ctrl){
   if(ctrl == 0){
-    setMotor(1, 255);
-    setMotor(2, 255);
+    setMotor(1, 170);
+    setMotor(2, 150);
   }else if(ctrl == 1){
-    setMotor(1, 255);
+    setMotor(1, 170);
     setMotor(2, 100);
   }else if(ctrl == 2){
-    setMotor(1, 100);
-    setMotor(2, 255);
+    setMotor(1, 110);
+    setMotor(2, 150);
   }
 }

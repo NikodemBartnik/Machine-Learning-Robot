@@ -2,7 +2,6 @@
 #include <SD.h>
 #include <SoftwareSerial.h>
 
-//Max lidar resolution is 752, to make it easier to send and display in pygame program reduces it to 188 (752/4 = 188)
 #define LIDAR_RESOLUTION 240
 #define FRAME_LENGTH 120
 
