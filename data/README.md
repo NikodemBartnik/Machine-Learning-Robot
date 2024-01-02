@@ -1,3 +1,4 @@
+# About the data
 This is the data I collected from various racetracks in my ([first video](https://www.youtube.com/watch?v=PdSDhdciSpE)), where the primary focus was on enabling a single robot to drive autonomously on the racetrack. Each file represents a data collection attempt, comprising 10-30 minutes of driving on the racetrack. Most files include mixed data from both clockwise and counterclockwise driving. The data is stored in CSV format within text (TXT) files. While driving at a rate of 5 times per second, the distances from the LIDAR were recorded, along with a letter representing the current control command sent from the remote control app. Each data point was saved as a new line, and there are only five possible letters:
 
 - F - forward
